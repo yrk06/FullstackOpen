@@ -8,7 +8,7 @@
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "rm -rf build && cd ../phonebook && npm run build && cp -r build ../phonebookbackend",
-    "deploy": "git push heroku main",
+    "deploy": "cd ../../ git subtree push --prefix part3/phonebookbackend heroku master",
     "deploy:full": "npm run build:ui && git add . && git commit -m \"phonebook build\" && npm run deploy"
   },
   "author": "Yerik K.",
