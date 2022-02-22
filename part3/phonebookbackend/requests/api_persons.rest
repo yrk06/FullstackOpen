@@ -4,10 +4,10 @@ GET http://localhost:3001/api/persons
 GET http://localhost:3001/info
 
 ###
-GET http://localhost:3001/api/persons/2
+GET http://localhost:3001/api/persons/621446ef2459fc6f617e69c9
 
 ###
-DELETE http://localhost:3001/api/persons/2
+DELETE http://localhost:3001/api/persons/6214505b4f7c92ee597c3e55
 
 ###
 POST http://localhost:3001/api/persons
@@ -17,3 +17,9 @@ Content-Type: application/json
     "name":"Yerik",
     "number":"074-185-2963"
 }
+
+###
+GET http://localhost:3001/api/invalid
+
+###
+GET http://localhost:3001/api/persons/SomeOtherStuff
