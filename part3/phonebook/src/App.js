@@ -30,17 +30,19 @@ const App = () => {
           setPersons(persons.map(el => el.id !== obj.id ? el : newP))
           setNtfMessage({success: `${newP.name} was updated successfully`})
         })
-        .catch(()=> {
-          setNtfMessage({error: `${obj.name} was already deleted`})
-          setPersons(persons.filter(el => el.id !== obj.id))
+        .catch((err)=> {
+          setNtfMessage(err)
+          //setPersons(persons.filter(el => el.id !== obj.id))
         })
       }
     
     } else {
-      PersonsOp.addPerson({name:newName,number:newNumber}).then(newP => {
+      PersonsOp.addPerson({name:newName,number:newNumber})
+      .then(newP => {
         setPersons(persons.concat(newP)) 
         setNtfMessage({success: `${newP.name} was added successfully`})
       })
+      .catch(err => {setNtfMessage(err)})
     } 
   }
 

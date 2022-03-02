@@ -9,7 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "rm -rf build && cd ../phonebook && npm run build && cp -r build ../phonebookbackend",
     "deploy": "cd ../../ && git subtree push --prefix part3/phonebookbackend heroku master",
-    "deploy:full": "npm run build:ui && git add . && git commit -m \"phonebook build\" && npm run deploy"
+    "deploy:full": "npm run build:ui && git add . && git commit -m \"phonebook build\" && npm run deploy",
+    "lint": "eslint ."
   },
   "author": "Yerik K.",
   "license": "MIT",
@@ -21,6 +22,7 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "eslint": "^8.10.0",
     "nodemon": "^2.0.15"
   }
 }

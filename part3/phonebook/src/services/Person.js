@@ -10,15 +10,21 @@ const allPersons = () =>{
 }
 
 const addPerson = (person) =>{
-    return axios
+    return new Promise( (resolve,reject) => {
+    axios
     .post(baseURL,person)
-    .then(res => res.data)
+    .then(res => resolve(res.data))
+    .catch(err => reject(err.response.data))
+    })
 }
 
 const updatePerson = (person) =>{
-    return axios
+    return new Promise( (resolve,reject) => {
+    axios
     .put(`${baseURL}/${person.id}`,person)
-    .then(res => res.data)
+    .then(res => resolve(res.data))
+    .catch(err => reject(err.response.data))
+    })
 }
 
 const deletePerson = (person) => {
