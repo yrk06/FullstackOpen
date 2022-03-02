@@ -80,13 +80,21 @@ app.post('/api/persons', (req,res,next) => {
       return res.status(400).send({error: "Number is missing"})
     }
 
-
-    const nperson = new Person({
+    Person
+    .create({
       name: person.name,
       number: person.number
     })
-    nperson.save().then(savedPerson => res.send(savedPerson))
-    .catch(err => next(err))
+    .then(nperson => {
+      console.log(nperson.validateSync())
+      nperson.save()
+      .then(savedPerson => res.send(savedPerson))
+      .catch(err => next(err))
+    })
+    .catch(err => {
+      next(err)
+    })
+    
     
 })
 
@@ -105,12 +113,12 @@ app.put('/api/persons/:id', (req,res,next) => {
     number: body.number,
   }
 
-  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+  Person.findByIdAndUpdate(req.params.id, person, { new: true, runValidators: true, context:'query' })
     .then(updatedPerson => {
       if (updatedPerson){
           res.json(updatedPerson)
       } else {
-        res.status(404).end()
+        res.status(404).json({error:"This person was already deleted"})
       }
     })
     .catch(error => next(error))
@@ -135,6 +143,12 @@ app.use((error, request, response, next)=>{
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
   } 
+  if (error.name === 'ValidationError') {
+    return response.status(400).send({ error: error.message })
+  } 
+  if (error.name === "MongoServerError"){
+    return response.status(400).send({ error: error.message })
+  }
 
   next(error)
 })
