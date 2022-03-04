@@ -3,10 +3,21 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
-const { initialBlog, nonExistingId, blogsInDb} = require('./test_helper')
+const { initialBlog, nonExistingId, blogsInDb, rootUser} = require('./test_helper')
 
+let authToken
 beforeEach( async () => {
+    await User.deleteMany({})
+    await (new User(rootUser)).save()
+
+    const res = await api
+    .post('/api/login')
+    .send({username:"root", password:"rootPassword"})
+    authToken = res.body.token
+
+
     await Blog.deleteMany({})
     const blogs = initialBlog.map(b => new Blog(b))
     const blogsPromise = blogs.map(b => b.save())
@@ -23,10 +34,12 @@ describe('Blog API', () => {
     test('Create Blog', async ()=> {
         const res = await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${authToken}`)
         .send({title:"TBD",author:"NA",url:"https://fullstackopen.com/",likes:100})
         .expect(201)
         
         delete res.body.id
+        delete res.body.user
         expect(res.body).toEqual({title:"TBD",author:"NA",url:"https://fullstackopen.com/",likes:100})
         expect((await blogsInDb()).length).toBe(initialBlog.length +1)
     })
@@ -39,10 +52,12 @@ describe('Blog API', () => {
     test('Create Blog with 0 likes', async () => {
         const res = await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${authToken}`)
         .send({title:"TBD",author:"NA",url:"https://fullstackopen.com/"})
         .expect(201)
         
         delete res.body.id
+        delete res.body.user
         expect(res.body).toEqual({title:"TBD",author:"NA",url:"https://fullstackopen.com/",likes:0})
         expect((await blogsInDb()).length).toBe(initialBlog.length +1)
     })
@@ -50,6 +65,7 @@ describe('Blog API', () => {
     test('Create Blog without title and author', async () => {
         const res = await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${authToken}`)
         .send({url:"https://fullstackopen.com/"})
         .expect(400)
 
@@ -61,7 +77,8 @@ describe('Blog API', () => {
 
         await api
         .delete(`/api/blogs/${id}`)
-        .expect(204)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(404)
 
         expect((await blogsInDb()).length).toBe(initialBlog.length)
     })
@@ -71,6 +88,7 @@ describe('Blog API', () => {
 
         await api
         .delete(`/api/blogs/${id}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(204)
 
         expect((await blogsInDb()).length).toBe(initialBlog.length-1)
@@ -82,10 +100,10 @@ describe('Blog API', () => {
 
         const res = await api
         .put(`/api/blogs/${id}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({likes:likes+1})
         .expect(200)
 
-        console.log(res.body.error)
         expect((await blogsInDb())[0].likes).toBe(likes +1)
     })
 
@@ -94,6 +112,7 @@ describe('Blog API', () => {
 
         await api
         .put(`/api/blogs/${id}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({likes:100})
         .expect(404)
     })
